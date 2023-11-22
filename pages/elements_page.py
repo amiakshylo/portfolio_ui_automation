@@ -1,6 +1,5 @@
 import random
 
-
 from selenium.webdriver.common.by import By
 from generator.generator import generating_person
 from pages.base_page import BasePage
@@ -185,9 +184,26 @@ class WebTablesPage(BasePage):
             return True
 
 
+class ButtonsPage(BasePage):
+    # locators
+    __double_click_button_locator = (By.ID, "doubleClickBtn")
+    __double_click_message_locator = (By.ID, "doubleClickMessage")
+    __right_click_button_locator = (By.ID, "rightClickBtn")
+    __right_click_message_locator = (By.ID, "rightClickMessage")
+    ___click_me_button_locator = (By.XPATH, "//button[text()='Click Me']")
+    ___click_me_message_locator = (By.ID, "dynamicClickMessage")
 
+    def __init__(self, driver, url):
+        super().__init__(driver, url)
 
-
-
-
+    def click_button(self, button_name):
+        if button_name == "Double Click Me":
+            super()._action("double_click", self.__double_click_button_locator)
+            return super()._get_text_from_element(self.__double_click_message_locator)
+        elif button_name == "Right Click Me":
+            super()._action("context_click", self.__right_click_button_locator)
+            return super()._get_text_from_element(self.__right_click_message_locator)
+        elif button_name == "Click Me":
+            super()._click_button(self.___click_me_button_locator)
+            return super()._get_text_from_element(self.___click_me_message_locator)
 

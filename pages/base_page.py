@@ -43,10 +43,17 @@ class BasePage:
         self._driver.execute_script("document.getElementsByTagName('footer')[0].remove();")
         self._driver.execute_script("document.getElementsById('close-fixedban').remove();")
 
-
-
-
-
-
+    def _action(self, action: str, locator):
+        any_action = ActionChains(self._driver)
+        if action == "context_click":
+            element = self._find_visible_element(locator)
+            any_action.context_click(element)
+            any_action.perform()
+        elif action == "double_click":
+            element = self._find_visible_element(locator)
+            any_action.double_click(element)
+            any_action.perform()
+        else:
+            print('Specify action')
 
 
