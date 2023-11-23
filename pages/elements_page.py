@@ -261,6 +261,23 @@ class UploadDownload(BasePage):
         return check_file
 
 
+class DynamicProperties(BasePage):
+    # locators
+    __button_color_change_locator = (By.ID, "colorChange")
+    __button_visible_after_5sec_locator = (By.ID, "visibleAfter")
 
+    def __init__(self, driver, url):
+        super().__init__(driver, url)
 
+    def verify_buttons_color_changing(self):
+        color_before = super()._get_element_property(self.__button_color_change_locator)
+        time.sleep(5)
+        color_after = super()._get_element_property(self.__button_color_change_locator)
+        return color_before, color_after
+
+    def verify_button_appearing(self):
+        visibility_of_element_before_5sec = super()._is_displayed(self.__button_visible_after_5sec_locator, 1)
+        time.sleep(5)
+        visibility_of_element_after_5sec = super()._is_displayed(self.__button_visible_after_5sec_locator, 5)
+        return visibility_of_element_before_5sec, visibility_of_element_after_5sec
 

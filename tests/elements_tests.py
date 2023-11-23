@@ -1,7 +1,7 @@
 import random
 
 from pages.elements_page import TextBoxPage, CheckboxPage, RadioButtonPage, WebTablesPage, ButtonsPage, LinksPage, \
-    UploadDownload
+    UploadDownload, DynamicProperties
 
 
 class TestTextBoxPage:
@@ -109,3 +109,19 @@ class TestUploadDownloadPage:
         download_file = UploadDownload(driver, "https://demoqa.com/upload-download")
         download_file.open_webpage()
         assert download_file.download_file() is True, "The file hasn't been downloaded"
+
+
+class TestDynamicProperties:
+    def test_button_color_changing(self, driver):
+        color_change = DynamicProperties(driver, "https://demoqa.com/dynamic-properties")
+        color_change.open_webpage()
+        color_before, color_after = color_change.verify_buttons_color_changing()
+        assert color_after == "rgba(220, 53, 69, 1)", "Changing color of button is not correct"
+        assert color_before != color_after, "Color of button has not been changed"
+
+    def test_button_appearing(self, driver):
+        button_appearing = DynamicProperties(driver, "https://demoqa.com/dynamic-properties")
+        button_appearing.open_webpage()
+        before, after = button_appearing.verify_button_appearing()
+        assert before is False, "Button is visible before 5 sec"
+        assert after is True, "Button hasn't been appeared after 5 sec"

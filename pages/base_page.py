@@ -1,3 +1,4 @@
+from selenium.common import NoSuchElementException, TimeoutException
 from selenium.webdriver import ActionChains, Keys
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.wait import WebDriverWait as wait
@@ -68,3 +69,16 @@ class BasePage:
     def _get_element_attribute(self, locator: tuple, attribute: str):
         element = self._find_visible_element(locator)
         return element.get_attribute(attribute)
+
+    def _get_element_property(self, locator):
+        element = self._find_visible_element(locator)
+        element_property = element.value_of_css_property("color")
+        return element_property
+
+    def _is_displayed(self, locator, timeout):
+        try:
+            return self._find_visible_element(locator, timeout).is_displayed()
+        except TimeoutException:
+            return False
+
+
