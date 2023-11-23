@@ -27,7 +27,7 @@ class BasePage:
     def _type(self, locator, text):
         self._find_visible_element(locator).send_keys(text)
 
-    def _click_button(self, locator):
+    def _click(self, locator):
         self._find_visible_element(locator).click()
 
     def _get_text_from_element(self, locator):
@@ -56,4 +56,15 @@ class BasePage:
         else:
             print('Specify action')
 
+    def _switch_browser_tab_to(self, window_number):
+        self._driver.switch_to.window(self._driver.window_handles[window_number])
 
+    def _current_url(self):
+        return self._driver.current_url
+
+    def _element_to_be_clickable(self, locator, timeout=5):
+        return wait(self._driver, timeout).until(ec.element_to_be_clickable(locator))
+
+    def _get_element_attribute(self, locator: tuple, attribute: str):
+        element = self._find_visible_element(locator)
+        return element.get_attribute(attribute)

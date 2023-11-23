@@ -1,7 +1,7 @@
 import random
-import time
 
-from pages.elements_page import TextBoxPage, CheckboxPage, RadioButtonPage, WebTablesPage, ButtonsPage
+from pages.elements_page import TextBoxPage, CheckboxPage, RadioButtonPage, WebTablesPage, ButtonsPage, LinksPage, \
+    UploadDownload
 
 
 class TestTextBoxPage:
@@ -80,8 +80,32 @@ class TestButtonPage:
     def test_click_buttons(self, driver):
         click_buttons = ButtonsPage(driver, "https://demoqa.com/buttons")
         click_buttons.open_webpage()
-        assert click_buttons.click_button("Double Click Me") == "You have done a double click"
-        assert click_buttons.click_button("Right Click Me") == "You have done a right click"
-        assert click_buttons.click_button("Click Me") == "You have done a dynamic click"
-        time.sleep(5)
+        assert click_buttons.click_button("Double Click Me") == "You have done a double click", \
+            "Button 'Double Click Me' wasn't click"
+        assert click_buttons.click_button("Right Click Me") == "You have done a right click", \
+            "Button 'Right Click Me' wasn't click"
+        assert click_buttons.click_button("Click Me") == "You have done a dynamic click", \
+            "Button 'Click Me' wasn't click"
 
+
+class TestLinkPage:
+
+    def test_simple_link(self, driver):
+        simple_link = LinksPage(driver, "https://demoqa.com/links")
+        simple_link.open_webpage()
+        link_href, opened_url = simple_link.click_simple_link()
+        assert link_href == opened_url, "The link is broken or url is incorrect"
+
+
+class TestUploadDownloadPage:
+
+    def test_upload_file(self, driver):
+        upload_file = UploadDownload(driver, "https://demoqa.com/upload-download")
+        upload_file.open_webpage()
+        uploading_file, uploaded_file = upload_file.upload_file()
+        assert uploading_file == uploaded_file, "The file hasn't been uploaded"
+
+    def test_download_file(self, driver):
+        download_file = UploadDownload(driver, "https://demoqa.com/upload-download")
+        download_file.open_webpage()
+        assert download_file.download_file() is True, "The file hasn't been downloaded"

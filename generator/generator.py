@@ -3,7 +3,6 @@ import random
 from data.data import Person
 from faker import Faker
 
-
 faker_en = Faker('En')
 Faker.seed()
 
@@ -21,3 +20,11 @@ def generating_person():
         permanent_address=faker_en.address(),
         # mobile=faker_en.msisdn()
     )
+
+
+def generating_file():
+    path = f"C:\\Users\\IT Centre 2 in 1\\portfolio_ui_automation\\test_file{random.randint(0, 999)}.txt"
+    file = open(path, 'w+')
+    file.write(f'Random text{random.randint(0, 999)}')
+    file.close()
+    return file.name, path

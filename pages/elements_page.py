@@ -1,7 +1,12 @@
+import base64
+import os
 import random
+import time
 
+import requests
+from selenium import webdriver
 from selenium.webdriver.common.by import By
-from generator.generator import generating_person
+from generator.generator import generating_person, generating_file
 from pages.base_page import BasePage
 
 
@@ -28,7 +33,7 @@ class TextBoxPage(BasePage):
         super()._type(self.__current_address_locator, generated_data.current_address)
         super()._type(self.__permanent_address_locator, generated_data.permanent_address)
         super()._go_to_element(self._find_present_element(self.__button_submit_locator))
-        super()._click_button(self.__button_submit_locator)
+        super()._click(self.__button_submit_locator)
         generated_data.current_address = generated_data.current_address.replace("\n", " ")
         generated_data.permanent_address = generated_data.permanent_address.replace("\n", " ")
         return generated_data.full_name, generated_data.email, generated_data.current_address, generated_data.permanent_address
@@ -50,7 +55,7 @@ class CheckboxPage(BasePage):
     __resulted_checkboxes = (By.XPATH, "//span[@class='text-success']")
 
     def click_expend_all_button(self):
-        super()._click_button(self.__button_expend_all_locator)
+        super()._click(self.__button_expend_all_locator)
 
     def click_random_checkboxes(self):
         random_number_for_cycle = 15
@@ -85,11 +90,11 @@ class RadioButtonPage(BasePage):
         # locators
         __radio_button = (By.XPATH, f"//label[@for='{button}Radio']")
         if button == "yes":
-            super()._click_button(__radio_button)
+            super()._click(__radio_button)
         elif button == "impressive":
-            super()._click_button(__radio_button)
+            super()._click(__radio_button)
         elif button == "no":
-            super()._click_button(__radio_button)
+            super()._click(__radio_button)
 
     def check_radio_button(self):
         return super()._get_text_from_element(self.__text_success)
@@ -120,14 +125,14 @@ class WebTablesPage(BasePage):
         return len(number_rows_before)
 
     def add_new_person(self):
-        super()._click_button(self.__button_add)
+        super()._click(self.__button_add)
         super()._type(self.__first_name_l, self.__person_info.first_name)
         super()._type(self.__last_name_l, self.__person_info.last_name)
         super()._type(self.__email_l, self.__person_info.email)
         super()._type(self.__age_l, self.__person_info.age)
         super()._type(self.__salary_l, self.__person_info.salary)
         super()._type(self.__department_l, self.__person_info.department)
-        super()._click_button(self.__button_submit)
+        super()._click(self.__button_submit)
         return [self.__person_info.first_name, self.__person_info.last_name,
                 str(self.__person_info.age), self.__person_info.email,
                 str(self.__person_info.salary),
@@ -156,15 +161,15 @@ class WebTablesPage(BasePage):
 
     def edit_row(self):
         new_name = self.__person_info.first_name
-        super()._click_button(self.__button_edit_row_l)
+        super()._click(self.__button_edit_row_l)
         super()._clear_field(self.__first_name_l)
         super()._type(self.__first_name_l, new_name)
-        super()._click_button(self.__button_submit)
+        super()._click(self.__button_submit)
         return str(new_name)
 
     def switch_row_per_page(self):
         super()._go_to_element(self._find_present_element(self.__rows_switcher_button_l))
-        super()._click_button(self.__rows_switcher_button_l)
+        super()._click(self.__rows_switcher_button_l)
         buttons_select_rows_per_page = super()._find_present_elements(self.__switcher_buttons_list)
         value = True
         for button_select_rows_per_page in buttons_select_rows_per_page:
@@ -178,7 +183,7 @@ class WebTablesPage(BasePage):
 
     def delete_person_from_table(self):
         count_rows_before_deleting = self.number_of_rows_before()
-        super()._click_button(self.__button_delete_row_l)
+        super()._click(self.__button_delete_row_l)
         count_rows_after_deleting = self.number_of_rows_after()
         if count_rows_before_deleting == count_rows_after_deleting + 1:
             return True
@@ -204,6 +209,58 @@ class ButtonsPage(BasePage):
             super()._action("context_click", self.__right_click_button_locator)
             return super()._get_text_from_element(self.__right_click_message_locator)
         elif button_name == "Click Me":
-            super()._click_button(self.___click_me_button_locator)
+            super()._click(self.___click_me_button_locator)
             return super()._get_text_from_element(self.___click_me_message_locator)
+
+
+class LinksPage(BasePage):
+    # locators
+    __simple_link_locator = (By.ID, "simpleLink")
+    __dynamic_link_locator = (By.ID, "dynamicLink")
+
+    def __init__(self, driver, url):
+        super().__init__(driver, url)
+
+    def click_simple_link(self):
+        simple_link_href = super()._get_element_attribute(self.__simple_link_locator, "href")
+        request_simple_link = requests.get(simple_link_href)
+        if request_simple_link.status_code == 200:
+            super()._click(self.__simple_link_locator)
+            super()._switch_browser_tab_to(1)
+            opened_tabs_url = super()._current_url()
+            return simple_link_href, opened_tabs_url
+        else:
+            return simple_link_href, request_simple_link.status_code
+
+
+class UploadDownload(BasePage):
+    # locators
+    __chose_file_locator = (By.ID, "uploadFile")
+    __uploaded_file_path = (By.ID, "uploadedFilePath")
+    __download_file_locator = (By.ID, "downloadButton")
+
+    def __init__(self, driver, url):
+        super().__init__(driver, url)
+
+    def upload_file(self):
+        file_name, path = generating_file()
+        super()._type(self.__chose_file_locator, path)
+        os.remove(path)
+        uploaded_file = super()._get_text_from_element(self.__uploaded_file_path)
+        return file_name.split("\\")[-1], uploaded_file.split("\\")[-1]
+
+    def download_file(self):
+        file_link = super()._get_element_attribute(self.__download_file_locator, "href").split(",")[1]
+        link_b = base64.b64decode(file_link)
+        path_name_file = f"C:\\Users\\IT Centre 2 in 1\\portfolio_ui_automation\\testfile{random.randint(0, 999)}.jpg"
+        with open(path_name_file, 'wb+') as f:
+            f.write(link_b)
+            check_file = os.path.exists(path_name_file)
+            f.close()
+        os.remove(path_name_file)
+        return check_file
+
+
+
+
 
