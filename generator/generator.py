@@ -18,7 +18,7 @@ def generating_person():
         email=faker_en.email(),
         current_address=faker_en.address(),
         permanent_address=faker_en.address(),
-        # mobile=faker_en.msisdn()
+        mobile=faker_en.msisdn()
     )
 
 
@@ -28,3 +28,32 @@ def generating_file():
     file.write(f'Random text{random.randint(0, 999)}')
     file.close()
     return file.name, path
+
+
+def generating_subjects():
+    subjects = {
+        1: "Hindi",
+        2: "English",
+        3: "Maths",
+        4: "Physics",
+        5: "Chemistry",
+        6: "Biology",
+        7: "Computer Science",
+        8: "Commerce",
+        9: "Accounting",
+        10: "Economics",
+        11: "Arts",
+        12: "Social Studies",
+        13: "History",
+        14: "Civics"
+    }
+    count = 5
+    random_list_of_subjects = []
+    while count != 0:
+        random_subject = subjects[random.randint(1, 14)]
+        if random_subject not in random_list_of_subjects:
+            random_list_of_subjects.append(random_subject)
+            count -= 1
+    return random_list_of_subjects
+
+

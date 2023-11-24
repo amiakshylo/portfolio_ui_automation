@@ -13,3 +13,4 @@ class Person:
     age: int = None
     salary: int = None
     department: str = None
+    mobile: int = None

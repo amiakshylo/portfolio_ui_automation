@@ -2,6 +2,7 @@ import random
 
 from pages.elements_page import TextBoxPage, CheckboxPage, RadioButtonPage, WebTablesPage, ButtonsPage, LinksPage, \
     UploadDownload, DynamicProperties
+from pages.form_page import PracticeFormPage
 
 
 class TestTextBoxPage:
@@ -35,6 +36,7 @@ class TestRadioButton:
         assert radio_button.check_radio_button() == "Impressive", "Button 'Impressive' has not been clicked"
         radio_button.click_radio_button("no")
         assert radio_button.check_radio_button() == "No", "Button 'No' has not been clicked"
+        parametrize
 
 
 class TestWebFormPage:
@@ -125,3 +127,11 @@ class TestDynamicProperties:
         before, after = button_appearing.verify_button_appearing()
         assert before is False, "Button is visible before 5 sec"
         assert after is True, "Button hasn't been appeared after 5 sec"
+
+
+class TestPracticeFormPage:
+
+    def test_fill_student_registration_form(self, driver):
+        fill_form = PracticeFormPage(driver, "https://demoqa.com/automation-practice-form")
+        fill_form.open_webpage()
+        fill_form.fill_student_registration_form()
