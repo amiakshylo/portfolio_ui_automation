@@ -21,7 +21,7 @@ class TextBoxPage(BasePage):
     __result_curr_addr_locator = (By.XPATH, "//p[@id='currentAddress']")
     __result_perm_addr_l = (By.XPATH, "//p[@id='permanentAddress']")
 
-    def form_fill(self):
+    def filling_out_the_form(self):
         # data(d)
         generated_data = next(generating_person())
         self._type(self.__full_name_locator, generated_data.full_name)
@@ -32,7 +32,8 @@ class TextBoxPage(BasePage):
         self._click(self.__button_submit_locator)
         generated_data.current_address = generated_data.current_address.replace("\n", " ")
         generated_data.permanent_address = generated_data.permanent_address.replace("\n", " ")
-        return generated_data.full_name, generated_data.email, generated_data.current_address, generated_data.permanent_address
+        return (generated_data.full_name, generated_data.email, generated_data.current_address,
+                generated_data.permanent_address)
 
     def verify_filed_form(self):
         result_name = self._get_text_from_element(self.__result_name_locator).split(":")[1]
@@ -54,12 +55,12 @@ class CheckboxPage(BasePage):
         self._click(self.__button_expend_all_locator)
 
     def click_random_checkboxes(self):
-        random_number_for_cycle = 15  # need fixes
+        random_number_for_cycle = random.randint(1, 15)
         all_checkboxes = self._find_present_elements(self.__all_checkboxes_locator)
         while random_number_for_cycle != 0:
-            selection_random_checkbox = all_checkboxes[random.randint(0, 16)]
-            self._go_to_element(selection_random_checkbox)
-            selection_random_checkbox.click()
+            choosing_random_checkbox = all_checkboxes[random.randint(0, 16)]
+            self._go_to_element(choosing_random_checkbox)
+            choosing_random_checkbox.click()
             random_number_for_cycle -= 1
 
     def save_selected_checkboxes(self):
@@ -85,14 +86,10 @@ class RadioButtonPage(BasePage):
     def click_radio_button(self, button):
         # locators
         __radio_button = (By.XPATH, f"//label[@for='{button}Radio']")
-        if button == "yes":
-            self._click(__radio_button)
-        elif button == "impressive":
-            self._click(__radio_button)
-        elif button == "no":
+        if "yes" or "impressive" or "no" in button:
             self._click(__radio_button)
 
-    def get_text_radio_button(self):
+    def check_radio_button(self):
         return self._get_text_from_element(self.__text_success)
 
 
@@ -109,7 +106,8 @@ class WebTablesPage(BasePage):
     __salary_l = (By.ID, "salary")
     __department_l = (By.ID, "department")
     __button_delete_row_l = (By.XPATH, "//span[@title='Delete']")
-    __button_edit_row_l = (By.XPATH, "//span[@title='Edit']")
+    __buttons_edit_row_l = (By.XPATH, "//span[@title='Edit']")
+    __fields_of_registration_form = (By.XPATH, "//div[@class='mt-2 row']")
     __rows_switcher_button_l = (By.XPATH, "//select[@aria-label='rows per page']")
     __search_box_l = (By.ID, "searchBox")
     __full_people_list = (By.CSS_SELECTOR, "div[class='rt-tr-group']")
@@ -129,37 +127,67 @@ class WebTablesPage(BasePage):
         self._type(self.__salary_l, self.__person_info.salary)
         self._type(self.__department_l, self.__person_info.department)
         self._click(self.__button_submit)
-        return (self.__person_info.first_name, self.__person_info.last_name, str(self.__person_info.age),
-                self.__person_info.email, str(self.__person_info.salary), self.__person_info.department)
+        return list((self.__person_info.first_name, self.__person_info.last_name, str(self.__person_info.age),
+                     self.__person_info.email, str(self.__person_info.salary), self.__person_info.department))
 
     def number_of_rows_after(self):
         number_rows_after = self._find_visible_elements(self.__button_delete_row_l)
         return len(number_rows_after)
 
-    def check_new_added_person(self):
-        people_list = self._find_present_elements(self.__full_people_list)
-        data = []
-        for item in people_list:
-            data.append(item.text.splitlines())
-        return data
-
     def search_person(self, text):
         self._type(self.__search_box_l, text)
 
-    def check_person(self):
-        search_result = self._find_present_elements(self.__full_people_list)
-        result_data = []
-        for item in search_result:
-            result_data.append(item.text.splitlines())
-        return str(result_data)
+    @staticmethod
+    def if_person_found(key_word, result_lists):
+        for sublist in result_lists:
+            if key_word in sublist:
+                return True
+        return False
 
-    def edit_row(self):  # first name чи конкретну роу
-        new_name = self.__person_info.first_name
-        self._click(self.__button_edit_row_l)
-        self._clear_field(self.__first_name_l)
-        self._type(self.__first_name_l, new_name)
-        self._click(self.__button_submit)
-        return str(new_name)
+    def check_person(self):
+        list_of_persons = self._find_present_elements(self.__full_people_list)
+        result_data = []
+        for text_field in list_of_persons:
+            result_data.append(text_field.text.splitlines())
+        return result_data
+
+    def edit_random_row_and_field(self):
+        existing_rows = self._find_present_elements(self.__buttons_edit_row_l)
+        choosing_random_row = random.choice(existing_rows)
+        choosing_random_row.click()
+        existing_fields = self._find_present_elements(self.__fields_of_registration_form)
+        choosing_random_field = random.choice(existing_fields)
+        random_field_text = choosing_random_field.text
+        if random_field_text == "Department":
+            self._clear_field(self.__department_l)
+            self._type(self.__department_l, self.__person_info.department)
+            self._click(self.__button_submit)
+            return self.__person_info.department
+        elif random_field_text == "First Name":
+            self._clear_field(self.__first_name_l)
+            self._type(self.__first_name_l, self.__person_info.first_name)
+            self._click(self.__button_submit)
+            return self.__person_info.first_name
+        elif random_field_text == "Last Name":
+            self._clear_field(self.__last_name_l)
+            self._type(self.__last_name_l, self.__person_info.last_name)
+            self._click(self.__button_submit)
+            return self.__person_info.last_name
+        elif random_field_text == "Email":
+            self._clear_field(self.__email_l)
+            self._type(self.__email_l, self.__person_info.email)
+            self._click(self.__button_submit)
+            return self.__person_info.email
+        elif random_field_text == "Age":
+            self._clear_field(self.__age_l)
+            self._type(self.__age_l, self.__person_info.age)
+            self._click(self.__button_submit)
+            return self.__person_info.age
+        elif random_field_text == "Salary":
+            self._clear_field(self.__salary_l)
+            self._type(self.__salary_l, self.__person_info.salary)
+            self._click(self.__button_submit)
+            return self.__person_info.salary
 
     def switch_row_per_page(self):
         self._go_to_element(self._find_present_element(self.__rows_switcher_button_l))

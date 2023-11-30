@@ -1,4 +1,7 @@
 import random
+import time
+
+import pytest
 
 from pages.elements_page import TextBoxPage, CheckboxPage, RadioButtonPage, WebTablesPage, ButtonsPage, LinksPage, \
     UploadDownload, DynamicProperties
@@ -10,7 +13,7 @@ class TestTextBoxPage:
     def test_text_box(self, driver):
         text_box = TextBoxPage(driver, "https://demoqa.com/text-box")
         text_box.open_webpage()
-        assert text_box.form_fill() == text_box.verify_filed_form()
+        assert text_box.filling_out_the_form() == text_box.verify_filed_form()
 
 
 class TestCheckBoxPage:
@@ -26,17 +29,15 @@ class TestCheckBoxPage:
 
 
 class TestRadioButton:
-
-    def test_radio_button(self, driver):
+    @pytest.mark.parametrize("button_name, expected_text, assertion_error",
+                             [("yes", "Yes", "Button 'yes' has not been clicked"),
+                              ("impressive", "Impressive", "Button 'Impressive' has not been clicked"),
+                              ("no", "No", "Button 'No' has not been clicked")])
+    def test_radio_buttons(self, driver, button_name, expected_text, assertion_error):
         radio_button = RadioButtonPage(driver, "https://demoqa.com/radio-button")
         radio_button.open_webpage()
-        radio_button.click_radio_button("yes")
-        assert radio_button.check_radio_button() == "Yes", "Button 'yes' has not been clicked"
-        radio_button.click_radio_button("impressive")
-        assert radio_button.check_radio_button() == "Impressive", "Button 'Impressive' has not been clicked"
-        radio_button.click_radio_button("no")
-        assert radio_button.check_radio_button() == "No", "Button 'No' has not been clicked"
-        parametrize
+        radio_button.click_radio_button(button_name)
+        assert radio_button.check_radio_button() == expected_text, assertion_error
 
 
 class TestWebFormPage:
@@ -48,7 +49,7 @@ class TestWebFormPage:
         added_data = web_form.add_new_person()
         rows_after = web_form.number_of_rows_after()
         assert rows_after == rows_before + 1, "Row has not been added"
-        result_data = web_form.check_new_added_person()
+        result_data = web_form.check_person()
         assert added_data in result_data, "New person has not been added"
 
     def test_search_person(self, driver):
@@ -57,14 +58,14 @@ class TestWebFormPage:
         key_word = web_form.add_new_person()[random.randint(0, 5)]
         web_form.search_person(key_word)
         search_result = web_form.check_person()
-        assert key_word in search_result, "The person has not been found"
+        assert web_form.if_person_found(key_word, search_result), "The person has not been found"
 
-    def test_edit_row(self, driver):
+    def test_edit_random_row_and_field(self, driver):
         web_form = WebTablesPage(driver, "https://demoqa.com/webtables")
         web_form.open_webpage()
-        text_edited_field = web_form.edit_row()
-        edited_result = web_form.check_person()
-        assert text_edited_field in edited_result, "The person has not been changed"
+        changing_random_row_and_field = web_form.edit_random_row_and_field()
+        result_data = web_form.check_person()
+        assert web_form.if_person_found(changing_random_row_and_field, result_data), "The person has not been changed"
 
     def test_rows_per_page_switcher(self, driver):
         web_form = WebTablesPage(driver, "https://demoqa.com/webtables")
