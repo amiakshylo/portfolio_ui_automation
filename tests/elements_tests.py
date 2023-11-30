@@ -79,16 +79,15 @@ class TestWebFormPage:
 
 
 class TestButtonPage:
-
-    def test_click_buttons(self, driver):
+    @pytest.mark.parametrize("button, excepted_text, assertion_error_message", [
+        ("double_click_button", "You have done a double click", "Button 'Double Click Me' wasn't click"),
+        ("right_click_button", "You have done a right click", "Button 'Right Click Me' wasn't click"),
+        ("simple_click_button", "You have done a dynamic click", "Button 'Click Me' wasn't click")
+    ])
+    def test_click_buttons(self, driver, button, excepted_text, assertion_error_message):
         click_buttons = ButtonsPage(driver, "https://demoqa.com/buttons")
         click_buttons.open_webpage()
-        assert click_buttons.click_button("Double Click Me") == "You have done a double click", \
-            "Button 'Double Click Me' wasn't click"
-        assert click_buttons.click_button("Right Click Me") == "You have done a right click", \
-            "Button 'Right Click Me' wasn't click"
-        assert click_buttons.click_button("Click Me") == "You have done a dynamic click", \
-            "Button 'Click Me' wasn't click"
+        assert click_buttons.click_button(button) == excepted_text, assertion_error_message
 
 
 class TestLinkPage:

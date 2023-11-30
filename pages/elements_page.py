@@ -1,7 +1,6 @@
 import base64
 import os
 import random
-import time
 
 import requests
 from selenium.webdriver.common.by import By
@@ -220,14 +219,14 @@ class ButtonsPage(BasePage):
     ___click_me_button_locator = (By.XPATH, "//button[text()='Click Me']")
     ___click_me_message_locator = (By.ID, "dynamicClickMessage")
 
-    def click_button(self, button_name):
-        if button_name == "Double Click Me":
+    def click_button(self, button):
+        if button == "double_click_button":
             self._action("double_click", self.__double_click_button_locator)
             return self._get_text_from_element(self.__double_click_message_locator)
-        elif button_name == "Right Click Me":
+        elif button == "right_click_button":
             self._action("context_click", self.__right_click_button_locator)
             return self._get_text_from_element(self.__right_click_message_locator)
-        elif button_name == "Click Me":
+        elif button == "simple_click_button":
             self._click(self.___click_me_button_locator)
             return self._get_text_from_element(self.___click_me_message_locator)
 
@@ -260,14 +259,14 @@ class UploadDownload(BasePage):
         self._type(self.__chose_file_locator, path)
         os.remove(path)
         uploaded_file = self._get_text_from_element(self.__uploaded_file_path)
-        return file_name.split("\\")[-1], uploaded_file.split("\\")[-1]
+        return uploaded_file.split("\\")[-1], file_name
 
     def download_file(self):
         file_link = self._get_element_attribute(self.__download_file_locator, "href").split(",")[1]
         link_b = base64.b64decode(file_link)
-        path_name_file = f"C:\\Users\\IT Centre 2 in 1\\portfolio_ui_automation\\testfile{random.randint(0, 999)}.jpg"  # no hardcode
-        with open(path_name_file, 'wb+') as f:
-            f.write(link_b)
+        path_name_file = f".\\testfile{random.randint(0, 999)}.jpg"
+        with open(path_name_file, 'wb+') as file:
+            file.write(link_b)
             check_file = os.path.exists(path_name_file)
         os.remove(path_name_file)
         return check_file

@@ -1,3 +1,4 @@
+import os
 import random
 
 from data.data import Person
@@ -22,12 +23,21 @@ def generating_person():
     )
 
 
+# def generating_file():
+#     path = f"C:\\Users\\IT Centre 2 in 1\\portfolio_ui_automation\\test_file{random.randint(0, 999)}.txt"
+#     file = open(path, 'w+')
+#     file.write(f'Random text{random.randint(0, 999)}')
+#     file_name = file.name
+#     file.close()
+#     return file_name, path
+
 def generating_file():
-    path = f"C:\\Users\\IT Centre 2 in 1\\portfolio_ui_automation\\test_file{random.randint(0, 999)}.txt"
-    file = open(path, 'w+')
-    file.write(f'Random text{random.randint(0, 999)}')
-    file.close()
-    return file.name, path
+    current_directory = os.getcwd()
+    file_name = f"test_file{random.randint(0, 999)}.txt"
+    path = os.path.join(current_directory, file_name)
+    with open(path, 'w+') as file:
+        file.write(f'Random text{random.randint(0, 999)}')
+    return file_name, path
 
 
 def generating_subjects():
